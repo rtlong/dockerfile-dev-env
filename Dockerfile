@@ -9,6 +9,7 @@ RUN add-apt-repository ppa:git-core/ppa \
  # Install base packages
  && apt-get update \
  && apt-get install \
+      ack-grep \
       apt-transport-https \
       build-essential \
       bzr \
@@ -16,12 +17,16 @@ RUN add-apt-repository ppa:git-core/ppa \
       exuberant-ctags \
       git \
       htop \
+      less \
+      man-db \
       manpages \
       mercurial \
       mosh \
+      net-tools \
       openssh-server \
       ssh-client \
       subversion \
+      wget \
       zsh
 
 # Set up ssh server
@@ -106,6 +111,8 @@ RUN go get -u -v github.com/goodguide/goodguide-git-hooks
 # install forego
 RUN go get -u -v github.com/ddollar/forego
 
+RUN go get -v github.com/github/hub
+
 # install jq 1.5
 ADD docker_runtime/gpg/jq_signing.key.pub.asc /tmp/
 RUN set -x \
@@ -121,14 +128,6 @@ RUN set -x \
  && apt-get install python-pip \
  && pip install awscli
 
-# Add some additional tools
-RUN apt-get install \
-      man-db \
-      wget \
-      less
-
-RUN go get -v github.com/github/hub
-
 # Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
 RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
 RUN echo "export DEBIAN_FRONTEND=noninteractive" >> /root/.profile
@@ -139,7 +138,7 @@ RUN usermod -s /usr/bin/zsh root
 COPY docker_runtime/start_sshd.sh /usr/local/bin/start_sshd
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
-VOLUME ["/code", "/root/.dotfiles", "/etc/ssh"]
+VOLUME ["/code", "/root"]
 
 WORKDIR /root
 
