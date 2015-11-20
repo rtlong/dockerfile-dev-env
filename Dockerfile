@@ -39,7 +39,7 @@ ENV GOROOT=$PREFIX/go GOPATH=/root/gopath
 ENV PATH $GOROOT/bin:$PATH
 RUN set -x \
  && cd /tmp \
- && curl -L -o go.tgz https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz \
+ && curl -fsSL -o go.tgz https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz \
  && shasum go.tgz | grep -q 46eecd290d8803887dec718c691cc243f2175fe0 \
  && mkdir -vp "$GOROOT" \
  && tar -xvz -C "$GOROOT" --strip-components=1 -f go.tgz \
