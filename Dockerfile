@@ -40,9 +40,9 @@ RUN set -x \
  && tar -xvz -C "$GOROOT" --strip-components=1 -f go.tgz \
  && rm -v /tmp/go.tgz
 
-RUN echo "export GOROOT=$GOROOT" >> /etc/environment \
- && echo "export GOPATH=$GOPATH" >> /etc/environment \
- && echo "export PATH=$GOPATH/bin:$GOROOT/bin:\$PATH" >> /etc/environment \
+RUN echo "export GOROOT=$GOROOT" >> /root/.profile \
+ && echo "export GOPATH=$GOPATH" >> /root/.profile \
+ && echo "export PATH=$GOPATH/bin:$GOROOT/bin:\$PATH" >> /root/.profile \
  && mkdir -p $GOPATH
 
 # Install VIM
@@ -124,10 +124,14 @@ RUN set -x \
 # Add some additional tools
 RUN apt-get install \
       man-db \
+      wget \
       less
 
+RUN go get -v github.com/github/hub
+
 # Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
-RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /etc/environment
+RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
+RUN echo "export DEBIAN_FRONTEND=noninteractive" >> /root/.profile
 
 # Set shell to zsh
 RUN usermod -s /usr/bin/zsh root
@@ -135,7 +139,7 @@ RUN usermod -s /usr/bin/zsh root
 COPY docker_runtime/start_sshd.sh /usr/local/bin/start_sshd
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
-VOLUME ["/code", "/root", "/etc/ssh"]
+VOLUME ["/code", "/root/.dotfiles", "/etc/ssh"]
 
 WORKDIR /root
 
