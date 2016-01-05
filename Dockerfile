@@ -93,8 +93,8 @@ RUN set -x \
 
 # Install docker-compose
 RUN set -x \
- && curl -fsSL -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/1.5.1/docker-compose-`uname -s`-`uname -m`" \
- && shasum /tmp/docker-compose | grep -q '7134e022b69fca96d4fa7c3ea8a47c980941485e' \
+ && curl -fsSL -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/1.5.2/docker-compose-`uname -s`-`uname -m`" \
+ && shasum -a 256 /tmp/docker-compose | grep -q 'b6b975badc5389647ef1c16fe8a33bdc5935c61f6afd5a15a28ff765427d01e3' \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose" \
  && rm -v /tmp/docker-compose
 
