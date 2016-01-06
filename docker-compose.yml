@@ -1,5 +1,5 @@
 dev:
-  # image: quay.io/goodguide/dev:v1
+  # image: quay.io/goodguide/dev:v2
   build: .
 
   container_name: dev
