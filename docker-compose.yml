@@ -1,5 +1,5 @@
 dev:
-  # image: quay.io/goodguide/dev:v2
+  # image: quay.io/goodguide/dev:v3
   build: .
 
   container_name: dev
@@ -20,7 +20,5 @@ dev:
   volumes:
     - '/var/run/docker.sock:/var/run/docker.sock' # mount docker socket into container so you can do things like run docker-compose from projects you're working on
     - '/code:/code' # somewhere to put the shit you're working on (if ever using docker, makes it easier if the path inside the container matches the path on the host)
-    - 'dev-home-dir:/root'
-    - 'dev-host-keys:/etc/ssh/ssh_host_keys'
 
   hostname: 'dev-container'
