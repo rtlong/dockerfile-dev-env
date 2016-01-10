@@ -23,7 +23,6 @@ RUN add-apt-repository ppa:git-core/ppa \
       mercurial \
       mosh \
       net-tools \
-      openssh-server \
       ssh-client \
       subversion \
       wget \
@@ -31,7 +30,13 @@ RUN add-apt-repository ppa:git-core/ppa \
 
 # Set up ssh server
 EXPOSE 22
-RUN mkdir -pv /var/run/sshd /root/.ssh \
+RUN apt-get install \
+      openssh-server \
+
+ # Delete the host keys it just generated. At runtime, we'll regenerate those
+ && rm -f /etc/ssh/ssh_host_* \
+
+ && mkdir -pv /var/run/sshd /root/.ssh \
  && chmod 0700 /root/.ssh
 
 # Install Golang
@@ -114,7 +119,7 @@ RUN go get -u -v github.com/ddollar/forego
 RUN go get -v github.com/github/hub
 
 # install jq 1.5
-ADD docker_runtime/gpg/jq_signing.key.pub.asc /tmp/
+COPY docker_runtime/gpg/jq_signing.key.pub.asc /tmp/
 RUN set -x \
  && curl -fsSL -o /tmp/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 \
  && curl -fsSL -o /tmp/jq.sig.asc https://raw.githubusercontent.com/stedolan/jq/master/sig/v1.5/jq-linux64.asc \
@@ -135,11 +140,15 @@ RUN echo "export DEBIAN_FRONTEND=noninteractive" >> /root/.profile
 # Set shell to zsh
 RUN usermod -s /usr/bin/zsh root
 
-COPY docker_runtime/start_sshd.sh /usr/local/bin/start_sshd
+COPY docker_runtime/entrypoint.sh /usr/local/bin/start_sshd
+COPY etc/ssh/* /etc/ssh/
+COPY etc/pam.d/* /etc/pam.d/
+
+# use a volume for the SSH host keys, to allow a persistent host ID across container restarts
+VOLUME ["/etc/ssh/ssh_host_keys"]
+ENTRYPOINT ["/usr/local/bin/start_sshd"]
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
 VOLUME ["/code", "/root"]
 
 WORKDIR /root
-
-CMD ["/usr/local/bin/start_sshd"]
