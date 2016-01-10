@@ -101,14 +101,14 @@ RUN set -x \
  && curl -fsSL -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/1.5.2/docker-compose-`uname -s`-`uname -m`" \
  && shasum -a 256 /tmp/docker-compose | grep -q 'b6b975badc5389647ef1c16fe8a33bdc5935c61f6afd5a15a28ff765427d01e3' \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose" \
- && rm -v /tmp/docker-compose
+ && rm -vrf /tmp/*
 
 # Install direnv
 RUN set -x \
  && curl -fsSL -o /tmp/direnv https://github.com/zimbatm/direnv/releases/download/v2.6.0/direnv.linux-amd64 \
  && shasum /tmp/direnv | grep -q 'ccc0b6569c39951d22ce7379b15fdffddb62d82d' \
  && install -v /tmp/direnv $PREFIX/bin/direnv \
- && rm -v /tmp/direnv
+ && rm -vrf /tmp/*
 
 # install goodguide-git-hooks
 RUN go get -u -v github.com/goodguide/goodguide-git-hooks
@@ -126,12 +126,27 @@ RUN set -x \
  && gpg --import /tmp/jq_signing.key.pub.asc \
  && gpg --verify /tmp/jq.sig.asc /tmp/jq \
  && install -v /tmp/jq $PREFIX/bin/jq \
- && rm -v /tmp/jq /tmp/jq.sig.asc /tmp/jq_signing.key.pub.asc
+ && rm -vfv /tmp/*
 
 # install AWS CLI
 RUN set -x \
  && apt-get install python-pip \
- && pip install awscli
+ && pip install awscli \
+ && rm -vrf /tmp/*
+
+# install latest release of thoughtbot's `pick` tool
+RUN set -x \
+ && version=1.2.1 \
+ && curl -fsSL -o /tmp/pick.tar.gz.sig.asc "https://github.com/thoughtbot/pick/releases/download/v${version}/pick-${version}.tar.gz.asc" \
+ && curl -fsSL -o /tmp/pick.tar.gz "https://github.com/thoughtbot/pick/releases/download/v${version}/pick-${version}.tar.gz" \
+ && gpg --recv-keys 35689C84 \
+ && gpg --verify /tmp/pick.tar.gz.sig.asc /tmp/pick.tar.gz \
+ && tar -xvz -C /tmp -f /tmp/pick.tar.gz \
+ && cd /tmp/pick-${version} \
+ && ./configure \
+ && make \
+ && make install \
+ && rm -vrf /tmp/*
 
 # Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
 RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
