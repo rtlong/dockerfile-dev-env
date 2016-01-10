@@ -1,0 +1,6 @@
+dev:
+  environment:
+    GITHUB_USERS_TO_ALLOW_SSH: 'user1 user2' # list of github usernames whose SSH public keys to install for root user
+  volumes:
+    - 'dev-home-dir:/root'
+    - 'dev-host-keys:/etc/ssh/ssh_host_keys'
