@@ -55,3 +55,5 @@ pushd gnupg-${gnupg_version}
 make
 make install
 popd
+
+ln -s ${PREFIX}/bin/gpg2 ${PREFIX}/bin/gpg
