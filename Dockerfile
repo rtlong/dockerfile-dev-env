@@ -166,13 +166,29 @@ RUN set -x \
  && rm -vrf /tmp/*
 
 # install goodguide-git-hooks
-RUN go get -u -v github.com/goodguide/goodguide-git-hooks
+RUN set -x \
+ && version='0.0.8' \
+ && cd /tmp \
+ && curl -L -o goodguide-git-hooks.tgz "https://github.com/GoodGuide/goodguide-git-hooks/releases/download/v${version}/goodguide-git-hooks_${version}_linux_amd64.tar.gz" \
+ && curl -L -o goodguide-git-hooks.tgz.asc "https://github.com/GoodGuide/goodguide-git-hooks/releases/download/v${version}/goodguide-git-hooks_${version}_linux_amd64.tar.gz.asc" \
+ && gpg --verify goodguide-git-hooks.tgz.asc goodguide-git-hooks.tgz \
+ && tar -xvzf goodguide-git-hooks.tgz \
+ && install -v goodguide-git-hooks "$PREFIX/bin/" \
+ && rm -vrf /tmp/*
 
 # install forego
 RUN go get -u -v github.com/ddollar/forego
 
 # install hub
-RUN go get -v github.com/github/hub
+RUN set -x \
+ && version='2.2.2' sha256='da2d780f6bca22d35fdf71c8ba1d11cfd61078d5802ceece8d1a2c590e21548d' \
+ && cd /tmp \
+ && curl -L -o hub.tgz "https://github.com/github/hub/releases/download/v${version}/hub-linux-amd64-${version}.tgz" \
+ && shasum -a 256 hub.tgz | grep -q "${sha256}" \
+ && tar -xvzf hub.tgz \
+ && cd hub-linux-amd64-${version}/ \
+ && ./install \
+ && rm -vrf /tmp/*
 
 # install slackline to update Slack #status channel with /me messages
 RUN go get -v github.com/davidhampgonsalves/slackline
