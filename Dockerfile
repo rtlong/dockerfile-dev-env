@@ -117,10 +117,9 @@ RUN set -x \
  && rm -vrf /tmp/*
 
 RUN set -x \
- && version='1.6.0-rc1' sha256='' \
+ && version='1.6.0-rc1' \
  && curl -L -o /tmp/docker-compose "https://github.com/goodguide/docker-compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
  && curl -L -o /tmp/docker-compose.asc "https://github.com/goodguide/docker-compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m).asc" \
- # && shasum -a 256 /tmp/docker-compose | grep -q "${sha256}" \
  && gpg --recv-keys E1B6700F \
  && gpg --verify /tmp/docker-compose.asc /tmp/docker-compose \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose-1.6.0-rc1" \
