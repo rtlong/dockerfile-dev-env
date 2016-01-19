@@ -51,7 +51,7 @@ RUN gnupg_version='2.1.10' libassuan_version='2.4.2' /tmp/install_gpg21.sh \
  && rm -rf /tmp/*
 
 # Install Golang
-ENV GOROOT=$PREFIX/go GOPATH=/root/gopath
+ENV GOROOT=$PREFIX/go GOPATH=/opt/gopath
 ENV PATH $GOROOT/bin:$PATH
 RUN set -x \
  && version='1.5.2' sha1='cae87ed095e8d94a81871281d35da7829bd1234e' \
