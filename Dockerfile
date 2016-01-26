@@ -117,8 +117,8 @@ RUN set -x \
  && rm -vrf /tmp/*
 
 RUN set -x \
- && version='1.6.0-rc1' sha256='97138ae643ffb9f0c501e0e8b4d10aba9473f7193f6a0bcc4931685b05ab067f' \
- && curl -L -o /tmp/docker-compose "https://github.com/goodguide/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
+ && version='1.6.0-rc1' sha256='af3d9e4bd9fd8a80b86975b2df8bb3c951a901e9d7d9594505ab626038fb29c5' \
+ && curl -L -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
  && shasum -a 256 /tmp/docker-compose | grep -q "${sha256}" \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose-${version}" \
  && rm -vrf /tmp/*
