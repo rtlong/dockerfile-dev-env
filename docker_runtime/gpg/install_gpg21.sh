@@ -18,6 +18,7 @@ pkg_deps=(
   texinfo
 )
 
+apt-get update
 apt-get install ${pkg_deps[*]}
 
 pushd /tmp
