@@ -1,11 +1,8 @@
 dev:
-  # image: quay.io/goodguide/dev:v3
+  # image: quay.io/goodguide/dev:v9
   build: .
 
   container_name: dev
-
-  extra_hosts:
-    - 'docker.dev:172.17.0.1'
 
   privileged: true # not at all necessary, just might be helpful
 
@@ -21,4 +18,4 @@ dev:
     - '/var/run/docker.sock:/var/run/docker.sock' # mount docker socket into container so you can do things like run docker-compose from projects you're working on
     - '/code:/code' # somewhere to put the shit you're working on (if ever using docker, makes it easier if the path inside the container matches the path on the host)
 
-  hostname: 'dev-container'
+  hostname: 'dev'

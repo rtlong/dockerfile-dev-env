@@ -10,26 +10,16 @@ RUN add-apt-repository ppa:git-core/ppa \
  && apt-get update \
  && apt-get upgrade \
  && apt-get install \
-      ack-grep \
       apt-transport-https \
       build-essential \
       bzr \
       curl \
-      exuberant-ctags \
-      file \
       git \
-      htop \
-      less \
-      man-db \
-      manpages \
       mercurial \
-      mosh \
-      net-tools \
-      psmisc \
       ssh-client \
       subversion \
-      wget \
-      zsh
+      unzip \
+      wget
 
 # Set up ssh server
 EXPOSE 22
@@ -70,6 +60,7 @@ RUN echo "export GOROOT=$GOROOT" >> /root/.profile \
 # Install VIM
 RUN set -x \
  && version='7.4.1087' \
+ && apt-get update \
  && apt-get install \
       libacl1 \
       libc6 \
@@ -90,6 +81,7 @@ RUN set -x \
 # Install tmux
 RUN set -x \
  && version='2.1' \
+ && apt-get update \
  && apt-get install \
       automake \
       libevent-dev \
@@ -145,6 +137,7 @@ RUN set -x \
 
 # install AWS CLI
 RUN set -x \
+ && apt-get update \
  && apt-get install python-pip \
  && pip install awscli \
  && rm -vrf /tmp/*
@@ -191,6 +184,29 @@ RUN set -x \
 
 # install slackline to update Slack #status channel with /me messages
 RUN go get -v github.com/davidhampgonsalves/slackline
+
+# since these are some of the fastest installs, add a few more packges here at the end
+RUN set -x \
+ && apt-get update \
+ && apt-get install \
+      ack-grep \
+      cowsay \
+      exuberant-ctags \
+      file \
+      htop \
+      less \
+      man-db \
+      manpages \
+      mosh \
+      net-tools \
+      pass \
+      psmisc \
+      tmux \
+      tree \
+      zsh
+
+# mosh port
+EXPOSE 60001/udp
 
 # Set up some environment for SSH clients (ENV statements have no affect on ssh clients)
 RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
