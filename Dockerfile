@@ -109,13 +109,13 @@ RUN set -x \
  && rm -vrf /tmp/*
 
 RUN set -x \
- && version='1.6.0-rc1' sha256='af3d9e4bd9fd8a80b86975b2df8bb3c951a901e9d7d9594505ab626038fb29c5' \
+ && version='1.6.0-rc2' sha256='3114a59ba7763d7fb76706a5329c512716fce1aac8751274ea458ba6a08d92a0' \
  && curl -L -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
  && shasum -a 256 /tmp/docker-compose | grep -q "${sha256}" \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose-${version}" \
  && rm -vrf /tmp/*
 
-RUN ln -s "$PREFIX/bin/docker-compose-1.6.0-rc1" "$PREFIX/bin/docker-compose"
+RUN ln -s "$PREFIX/bin/docker-compose-1.6.0-rc2" "$PREFIX/bin/docker-compose"
 
 # Install direnv
 RUN set -x \
