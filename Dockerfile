@@ -190,7 +190,10 @@ RUN set -x \
  && apt-get update \
  && apt-get install \
       ack-grep \
+      bind9-host \
+      command-not-found \
       cowsay \
+      dnsutils \
       exuberant-ctags \
       file \
       htop \
