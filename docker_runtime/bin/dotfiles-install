@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -euo pipefail
+
+clone_repo() {
+	# automatically expand {user}/{repo} to a github url if the given thing fails
+	if ! git ls-remote "${clone_url}" > /dev/null 2>&1; then
+		clone_url="https://github.com/${clone_url}.git"
+	fi
+	git clone --recursive "${clone_url}" "${DOTFILES_PATH}"
+}
+
+is_already_cloned() {
+	[[ -d ${DOTFILES_PATH}/.git ]]
+}
+
+run_install_script() {
+	[[ -x ${DOTFILES_PATH}/install.sh ]] && (cd "${DOTFILES_PATH}" && ./install.sh)
+}
+
+main() {
+	clone_url="$1"; shift
+	[[ ${clone_url:-} ]] || exit 1
+
+	[[ ${DOTFILES_PATH:-} ]] || export DOTFILES_PATH="${HOME}/.dotfiles"
+
+	is_already_cloned || clone_repo
+
+	run_install_script
+}
+
+main "$@"

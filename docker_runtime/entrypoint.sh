@@ -78,12 +78,7 @@ allow_github_user_via_ssh() {
 	)
 }
 
-main() {
-	# allow command override; don't bother with any other SSH stuff in that case
-	if [[ $# > 0 ]]; then
-		exec "$@"
-	fi
-
+run_sshd() {
 	# Regerate SSH Host Keys: n.b. Normally one could use `/usr/sbin/dpkg-reconfigure openssh-server`, but we're putting host keys in their own directory for docker volume mounting purposes
 	create_keys
 
@@ -101,6 +96,21 @@ main() {
 	/usr/sbin/sshd -D -e &
 	sshd=$!
 	wait $sshd
+}
+
+main() {
+	dotfiles-install "${DOTFILES_CLONE_URL:-}" || :
+
+	# allow command override; don't bother with any other SSH stuff in that case
+	if [[ $# > 0 ]]; then
+		if [[ "$@" = shell ]]; then
+			exec "$SHELL"
+		else
+			exec "$@"
+		fi
+	else
+		run_sshd
+	fi
 }
 
 main "$@"

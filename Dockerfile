@@ -231,10 +231,13 @@ COPY etc/pam.d/* /etc/pam.d/
 # use a volume for the SSH host keys, to allow a persistent host ID across container restarts
 VOLUME ["/etc/ssh/ssh_host_keys"]
 
+COPY docker_runtime/bin/* /usr/local/bin/
 COPY docker_runtime/entrypoint.sh /usr/local/bin/entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
 VOLUME ["/code", "/root"]
+
+ENV DOTFILES_PATH /root/.dotfiles
 
 WORKDIR /root
