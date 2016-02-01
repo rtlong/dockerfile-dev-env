@@ -139,7 +139,12 @@ RUN set -x \
 RUN set -x \
  && apt-get update \
  && apt-get install python-pip \
- && pip install awscli \
+ && rm -vrf /tmp/*
+
+RUN set -x \
+ && pip install \
+      awscli \
+      Pygments \
  && rm -vrf /tmp/*
 
 # install latest release of thoughtbot's `pick` tool
@@ -198,6 +203,7 @@ RUN set -x \
       file \
       htop \
       less \
+      lolcat \
       man-db \
       manpages \
       mosh \
@@ -215,17 +221,18 @@ EXPOSE 60001/udp
 RUN echo "export DOCKER_HOST='unix:///var/run/docker.sock'" >> /root/.profile
 RUN echo "export DEBIAN_FRONTEND=noninteractive" >> /root/.profile
 
-# Set shell to zsh
+# Set default shell to zsh
 RUN usermod -s /usr/bin/zsh root
 
-COPY docker_runtime/entrypoint.sh /usr/local/bin/start_sshd
+# add configuration for SSH and PAM (for SSH)
 COPY etc/ssh/* /etc/ssh/
 COPY etc/pam.d/* /etc/pam.d/
 
 # use a volume for the SSH host keys, to allow a persistent host ID across container restarts
 VOLUME ["/etc/ssh/ssh_host_keys"]
 
-ENTRYPOINT ["/usr/local/bin/start_sshd"]
+COPY docker_runtime/entrypoint.sh /usr/local/bin/entrypoint
+ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
 VOLUME ["/code", "/root"]
