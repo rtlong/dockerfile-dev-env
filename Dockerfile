@@ -211,6 +211,7 @@ RUN set -x \
       pass \
       psmisc \
       rsync \
+      silversearcher-ag \
       tmux \
       tree \
       zsh
