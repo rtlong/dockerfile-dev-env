@@ -100,17 +100,7 @@ run_sshd() {
 
 main() {
 	dotfiles-install "${DOTFILES_CLONE_URL:-}" || :
-
-	# allow command override; don't bother with any other SSH stuff in that case
-	if [[ $# > 0 ]]; then
-		if [[ "$@" = shell ]]; then
-			exec "$SHELL"
-		else
-			exec "$@"
-		fi
-	else
-		run_sshd
-	fi
+	run_sshd
 }
 
 main "$@"

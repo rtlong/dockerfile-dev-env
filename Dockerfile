@@ -234,8 +234,9 @@ COPY etc/pam.d/* /etc/pam.d/
 VOLUME ["/etc/ssh/ssh_host_keys"]
 
 COPY docker_runtime/bin/* /usr/local/bin/
-COPY docker_runtime/entrypoint.sh /usr/local/bin/entrypoint
-ENTRYPOINT ["/usr/local/bin/entrypoint"]
+COPY docker_runtime/main.sh /usr/local/bin/run_sshd
+
+CMD ["/usr/local/bin/run_sshd"]
 
 # these volumes allow creating a new container with these directories persisted, using --volumes-from
 VOLUME ["/code", "/root"]

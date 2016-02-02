@@ -1,21 +1,34 @@
-dev:
-  # image: quay.io/goodguide/dev:v9
-  build: .
+version: 2
+volumes:
+  home-dir: {}
+  host-keys: {}
+services:
+  dev:
+    # image: quay.io/goodguide/dev
+    build: .
 
-  container_name: dev
+    privileged: true # not at all necessary, just might be helpful
 
-  privileged: true # not at all necessary, just might be helpful
+    ports:
+      - '22' # sshd
+      - '60001/udp' # mosh server
 
-  ports:
-    - '2222:22' # sshd
-    - '60001:60001/udp' # mosh server
+    restart: always
 
-  restart: always
+    pid: host
 
-  pid: host
+    volumes:
+      # mount docker socket into container so you can do things like run
+      # docker-compose from projects you're working on
+      - '/var/run/docker.sock:/var/run/docker.sock'
 
-  volumes:
-    - '/var/run/docker.sock:/var/run/docker.sock' # mount docker socket into container so you can do things like run docker-compose from projects you're working on
-    - '/code:/code' # somewhere to put the shit you're working on (if ever using docker, makes it easier if the path inside the container matches the path on the host)
+      # workspace directory (if ever using docker within this container, makes
+      # it easier if the path inside the container matches the path on the
+      # host)
+      - '/code:/code'
 
-  hostname: 'dev'
+      # consistent home and host-keys directories
+      - 'home-dir:/root'
+      - 'host-keys:/etc/ssh/ssh_host_keys'
+
+    hostname: 'dev-${USER}'
