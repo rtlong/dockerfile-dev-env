@@ -210,6 +210,7 @@ RUN set -x \
       net-tools \
       pass \
       psmisc \
+      rsync \
       tmux \
       tree \
       zsh
