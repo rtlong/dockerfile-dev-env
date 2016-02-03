@@ -99,6 +99,7 @@ run_sshd() {
 }
 
 main() {
+	sleep 5
 	dotfiles-install "${DOTFILES_CLONE_URL:-}" || :
 	run_sshd
 }
