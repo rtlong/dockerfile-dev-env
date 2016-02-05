@@ -102,7 +102,7 @@ RUN set -x \
 
 # Install docker-compose
 RUN set -x \
- && version='1.6.0' sha256='b468d17846c4aeb9207cb687e50fc269dd01bcebd2ea7f5087de5a5037b63c78' \
+ && version='1.6.0' sha256='58f6d50fcad042f54463cf8e380d72809334d61294e4b958aa256b8283b39781' \
  && curl -L -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
  && shasum -a 256 /tmp/docker-compose | grep -q "${sha256}" \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose-${version}" \
