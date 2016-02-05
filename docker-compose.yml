@@ -1,7 +1,9 @@
-version: 2
+version: "2"
+
 volumes:
   home-dir: {}
   host-keys: {}
+
 services:
   dev:
     # image: quay.io/goodguide/dev

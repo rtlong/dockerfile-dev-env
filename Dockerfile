@@ -1,5 +1,5 @@
 # vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-FROM quay.io/goodguide/base:ubuntu-15.10-0
+FROM quay.io/goodguide/base:ubuntu-15.10-2
 
 ENV PREFIX /usr/local
 
