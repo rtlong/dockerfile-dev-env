@@ -194,6 +194,11 @@ RUN set -x \
       dnsutils \
       exuberant-ctags \
       file \
+      fortune-mod \
+      fortunes-bofh-excuses \
+      fortunes-debian-hints \
+      fortunes-mario \
+      fortunes-spam \
       htop \
       less \
       lolcat \
