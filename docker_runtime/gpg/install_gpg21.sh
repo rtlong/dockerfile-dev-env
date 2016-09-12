@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e -x -u
+set -euo pipefail
+set -x
 
 pkg_deps=(
   build-essential
@@ -32,29 +33,31 @@ keys_to_fetch=(
 )
 gpg --recv-keys ${keys_to_fetch[*]}
 
-libassuan_version="${libassuan_version:-2.4.2}"
-gnupg_version="${gnupg_version:-2.1.10}"
+install_component() {
+	local archive_url="$1"; shift
+	local signature_url="${archive_url}.sig"
 
-curl -L -O "ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-${libassuan_version}.tar.bz2"
-curl -L -O "ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-${libassuan_version}.tar.bz2.sig"
-gpg --verify "libassuan-${libassuan_version}.tar.bz2.sig"
-tar -xjf "libassuan-${libassuan_version}.tar.bz2"
+	local archive_filename="$(basename "${archive_url}")"
+	local signature_filename="$(basename "${signature_url}")"
+	local extracted_dirname="${archive_filename/.tar.bz2//}"
 
-pushd "libassuan-${libassuan_version}"
-./configure
-make
-make install
-popd
+	curl -L -o "${archive_filename}" "${archive_url}"
+	curl -L -o "${signature_filename}" "${signature_url}"
 
-curl -L -o gnupg.tar.bz2 "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${gnupg_version}.tar.bz2"
-curl -L -o gnupg.tar.bz2.sig "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-${gnupg_version}.tar.bz2.sig"
-gpg --verify gnupg.tar.bz2.sig gnupg.tar.bz2
-tar -xjf gnupg.tar.bz2
+	gpg --verify "${signature_filename}"
+	tar -xjf "${archive_filename}"
 
-pushd gnupg-${gnupg_version}
-./configure
-make
-make install
-popd
+	pushd "${extracted_dirname}"
+	./configure
+	make
+	make install
+	popd
+}
+
+install_component "https://gnupg.org/ftp/gcrypt/libassuan/libassuan-2.4.3.tar.bz2"
+install_component "https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-1.24.tar.bz2"
+install_component "https://gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.7.3.tar.bz2"
+install_component "https://gnupg.org/ftp/gcrypt/libksba/libksba-1.3.5.tar.bz2"
+install_component "https://gnupg.org/ftp/gcrypt/gnupg/gnupg-2.1.15.tar.bz2"
 
 ln -s ${PREFIX}/bin/gpg2 ${PREFIX}/bin/gpg

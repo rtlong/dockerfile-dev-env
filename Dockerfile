@@ -1,7 +1,40 @@
 # vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-FROM quay.io/goodguide/base:ubuntu-15.10-2
+FROM ubuntu:xenial
 
 ENV PREFIX /usr/local
+
+# Tell Apt never to prompt
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN set -x \
+
+ # Set up UTF support
+ && locale-gen en_US en_US.UTF-8 \
+ && dpkg-reconfigure locales \
+ && update-locale LANG=en_US.UTF-8 \
+
+ # Set apt mirror
+ && sed 's:archive.ubuntu.com/ubuntu/:mirrors.rit.edu/ubuntu-archive/:' -i /etc/apt/sources.list \
+
+ # never install recommends automatically
+ && echo 'Apt::Install-Recommends "false";' > /etc/apt/apt.conf.d/docker-no-recommends \
+ && echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/docker-assume-yes \
+ && echo 'APT::Get::AutomaticRemove "true";' > /etc/apt/apt.conf.d/docker-auto-remove \
+
+ # enable backports and others off by default
+ && sed 's/^#\s*deb/deb/' -i /etc/apt/sources.list \
+
+ # Enable automatic preference to use backport
+ && echo 'Package: *'                      >> /etc/apt/preferences \
+ && echo 'Pin: release a=xenial-backports' >> /etc/apt/preferences \
+ && echo 'Pin-Priority: 500'               >> /etc/apt/preferences \
+
+ && apt-get update \
+ && apt-get upgrade \
+ && apt-get install \
+       apt-transport-https \
+       ca-certificates \
+       software-properties-common
 
 # Set up PPAs
 RUN add-apt-repository ppa:git-core/ppa \
@@ -10,15 +43,22 @@ RUN add-apt-repository ppa:git-core/ppa \
  && apt-get update \
  && apt-get upgrade \
  && apt-get install \
-      apt-transport-https \
+      aptitude \
+      bash \
       build-essential \
       bzr \
+      coreutils \
       curl \
       git \
+      gnupg \
+      gzip \
+      iputils-ping \
+      less \
       mercurial \
       ssh-client \
       subversion \
       unzip \
+      vim \
       wget
 
 # Set up ssh server
@@ -37,17 +77,17 @@ RUN gpg --refresh-keys
 
 # install newer version of GPG
 COPY docker_runtime/gpg/install_gpg21.sh /tmp/install_gpg21.sh
-RUN gnupg_version='2.1.10' libassuan_version='2.4.2' /tmp/install_gpg21.sh \
+RUN /tmp/install_gpg21.sh \
  && rm -rf /tmp/*
 
 # Install Golang
 ENV GOROOT=$PREFIX/go GOPATH=/opt/gopath
 ENV PATH $GOROOT/bin:$PATH
 RUN set -x \
- && version='1.5.2' sha1='cae87ed095e8d94a81871281d35da7829bd1234e' \
+ && version='1.7.1' sha256='43ad621c9b014cde8db17393dc108378d37bc853aa351a6c74bf6432c1bbd182' \
  && cd /tmp \
  && curl -L -o go.tgz "https://storage.googleapis.com/golang/go${version}.linux-amd64.tar.gz" \
- && shasum -a 1 go.tgz | grep -q "$sha1" \
+ && shasum -a 256 go.tgz | grep -q "$sha256" \
  && mkdir -vp "$GOROOT" \
  && tar -xz -C "$GOROOT" --strip-components=1 -f go.tgz \
  && rm /tmp/go.tgz
@@ -80,7 +120,7 @@ RUN set -x \
 
 # Install tmux
 RUN set -x \
- && version='2.1' \
+ && version='2.2' \
  && apt-get update \
  && apt-get install \
       automake \
@@ -102,17 +142,16 @@ RUN set -x \
 
 # Install docker-compose
 RUN set -x \
- && version='1.6.0' sha256='58f6d50fcad042f54463cf8e380d72809334d61294e4b958aa256b8283b39781' \
+ && version='1.8.0' sha256='ebc6ab9ed9c971af7efec074cff7752593559496d0d5f7afb6bfd0e0310961ff' \
  && curl -L -o /tmp/docker-compose "https://github.com/docker/compose/releases/download/${version}/docker-compose-$(uname -s)-$(uname -m)" \
  && shasum -a 256 /tmp/docker-compose | grep -q "${sha256}" \
  && install -v /tmp/docker-compose "$PREFIX/bin/docker-compose-${version}" \
- && rm -vrf /tmp/*
-
-RUN ln -s "$PREFIX/bin/docker-compose-1.6.0" "$PREFIX/bin/docker-compose"
+ && rm -vrf /tmp/* \
+ && ln -s "$PREFIX/bin/docker-compose-${version}" "$PREFIX/bin/docker-compose"
 
 # Install direnv
 RUN set -x \
- && version='v2.7.0' \
+ && version='v2.9.0' \
  && git clone -b "${version}" 'http://github.com/direnv/direnv' "$GOPATH/src/github.com/direnv/direnv" \
  && cd "$GOPATH/src/github.com/direnv/direnv" \
  && make install
@@ -134,7 +173,10 @@ RUN set -x \
  && apt-get install python-pip \
  && rm -vrf /tmp/*
 
+RUN pip install --upgrade pip
 RUN set -x \
+ && pip install \
+      setuptools \
  && pip install \
       awscli \
       Pygments \
@@ -142,7 +184,7 @@ RUN set -x \
 
 # install latest release of thoughtbot's `pick` tool
 RUN set -x \
- && version='1.2.1' \
+ && version='1.4.0' \
  && curl -L -o /tmp/pick.tar.gz.sig.asc "https://github.com/thoughtbot/pick/releases/download/v${version}/pick-${version}.tar.gz.asc" \
  && curl -L -o /tmp/pick.tar.gz "https://github.com/thoughtbot/pick/releases/download/v${version}/pick-${version}.tar.gz" \
  && gpg --recv-keys 35689C84 \
@@ -171,7 +213,7 @@ RUN go get -u -v github.com/ddollar/forego
 
 # install hub
 RUN set -x \
- && version='2.2.2' sha256='da2d780f6bca22d35fdf71c8ba1d11cfd61078d5802ceece8d1a2c590e21548d' \
+ && version='2.2.8' sha256='04f3d879ee0c41d6bdf0ada41b5defbda7b8af2c1fe496b188bd36088c4ff2cf' \
  && cd /tmp \
  && curl -L -o hub.tgz "https://github.com/github/hub/releases/download/v${version}/hub-linux-amd64-${version}.tgz" \
  && shasum -a 256 hub.tgz | grep -q "${sha256}" \
